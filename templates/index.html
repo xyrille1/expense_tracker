@@ -1,0 +1,65 @@
+{% extends "base.html" %} {% block title %}Dashboard{% endblock %} {% block
+content %}
+<h3>Total: ₱{{ "%.2f"|format(total) }}</h3>
+
+<div class="row">
+  <div class="col-md-6">
+    <canvas id="categoryChart" height="250"></canvas>
+  </div>
+  <div class="col-md-6">
+    <h5>Recent expenses</h5>
+    <table class="table table-sm">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Category</th>
+          <th class="text-end">Amount</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for e in expenses %}
+        <tr>
+          <td>{{ e.date_str }}</td>
+          <td>{{ e.category }}</td>
+          <td class="text-end">₱{{ "%.2f"|format(e.amount) }}</td>
+          <td class="text-end">
+            <a
+              class="btn btn-sm btn-outline-secondary"
+              href="{{ url_for('edit', id=e._id) }}"
+              >Edit</a
+            >
+            <form
+              style="display: inline"
+              method="post"
+              action="{{ url_for('delete', id=e._id) }}"
+              onsubmit="return confirm('Delete this expense?');"
+            >
+              <button class="btn btn-sm btn-danger">Delete</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  const categories = {{ categories|tojson }};
+  const totals = {{ totals|tojson }};
+
+  const ctx = document.getElementById('categoryChart').getContext('2d');
+  const chart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: categories,
+      datasets: [{
+        label: 'Spending by category',
+        data: totals
+      }]
+    },
+    options: {}
+  });
+</script>
+{% endblock %}
